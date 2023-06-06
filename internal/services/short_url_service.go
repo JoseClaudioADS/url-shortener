@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/joseclaudioads/url-shortener/internal/repositories"
+	"github.com/joseclaudioads/url-shortener/internal/utils/idgenerator"
 )
 
 type ShortUrlService struct {
@@ -26,13 +27,19 @@ func NewShortUrlService(u repositories.UrlRepository) (*ShortUrlService, error) 
 func (s ShortUrlService) CreateShortUrl(o string) (string, error) {
 	fmt.Printf("Original Url %s", o)
 
-	h := "jdj49f"
+	ig := idgenerator.IDGenerator{}
 
-	s.UrlRepository.Save(repositories.ShortUrl{
+	id, err := ig.CreateID()
+
+	if err != nil {
+		return "", errors.New("Error generating id")
+	}
+
+	s.UrlRepository.Save(repository.ShortUrl{
 		OriginalUrl: o,
-		Hash:        h,
+		Hash:        id,
 	})
-	return h, nil
+	return id, nil
 }
 
 func (s ShortUrlService) GetOriginalUrl(h string) (string, error) {
