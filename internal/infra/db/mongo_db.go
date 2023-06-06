@@ -9,14 +9,22 @@ import (
 	"github.com/joseclaudioads/url-shortener/internal/utils/environments"
 )
 
+var client *mongo.Client
+
 func GetClient() *mongo.Client {
+
+	if client != nil {
+		return client
+	}
 
 	mongo_url := environments.MongoUrl
 
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(mongo_url))
+	c, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(mongo_url))
 	if err != nil {
 		panic(err)
 	}
+
+	client = c
 
 	return client
 }
