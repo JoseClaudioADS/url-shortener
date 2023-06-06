@@ -34,3 +34,15 @@ func (s ShortUrlService) CreateShortUrl(o string) (string, error) {
 	})
 	return h, nil
 }
+
+func (s ShortUrlService) GetOriginalUrl(h string) (string, error) {
+	fmt.Printf("Hash Url %s", h)
+
+	u, error := s.UrlRepository.Get(h)
+
+	if error != nil {
+		return "", error
+	}
+
+	return u.OriginalUrl, nil
+}

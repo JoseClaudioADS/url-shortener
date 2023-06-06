@@ -49,5 +49,15 @@ func (u urlsHandler) GetOriginalUrlHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	w.Write([]byte("Original URL Sended " + hashParam))
+	o, error := u.ShortUrlService.GetOriginalUrl(hashParam)
+
+	if error != nil {
+		w.WriteHeader(400)
+		w.Write([]byte(fmt.Sprintf("something wrong happened")))
+		return
+	}
+
+	w.Header().Set("Location", o)
+
+	w.WriteHeader(http.StatusMovedPermanently)
 }
