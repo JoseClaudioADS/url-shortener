@@ -5,13 +5,13 @@ import (
 	"net/http"
 
 	"github.com/joseclaudioads/url-shortener/internal/http/rest"
-	"github.com/joseclaudioads/url-shortener/internal/repositories"
+	"github.com/joseclaudioads/url-shortener/internal/repositories/postgres"
 	"github.com/joseclaudioads/url-shortener/internal/services"
 )
 
 func main() {
 
-	urlService, _ := services.NewShortUrlService(repositories.UrlRepositoryPostgres{})
+	urlService, _ := services.NewShortUrlService(postgres.UrlRepositoryPostgres{})
 
 	s := rest.CreateServer(rest.ShortenerServer{
 		ShortUrlService: *urlService,
