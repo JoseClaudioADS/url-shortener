@@ -1,8 +1,10 @@
 package postgres
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
+	"time"
 
 	"github.com/joseclaudioads/url-shortener/internal/repositories/repository"
 	"github.com/joseclaudioads/url-shortener/internal/utils/environments"
@@ -11,8 +13,6 @@ import (
 )
 
 type UrlRepositoryPostgres struct{}
-
-var db *sql.DB
 
 func getUrlConnection() string {
 	host := environments.DbHost
@@ -24,27 +24,38 @@ func getUrlConnection() string {
 	return fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
 }
 
-func getDBConnection() (*sql.DB, error) {
+func openDB() (*sql.DB, error) {
 	db, err := sql.Open("postgres", getUrlConnection())
 	if err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
 
-	err = db.Ping()
+	maxConn := environments.GetDbMaxConnections()
+
+	db.SetMaxOpenConns(maxConn)
+	db.SetMaxIdleConns(maxConn)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	err = db.PingContext(ctx)
 	if err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
 
-	fmt.Println("successful connection!")
 	return db, nil
 }
 
-func (up UrlRepositoryPostgres) Save(s repository.ShortUrl) error {
-	fmt.Println(s)
+func closeDB(db *sql.DB) {
+	err := db.Close()
+	if err != nil {
+		fmt.Println(err)
+	}
+}
 
-	db, err := getDBConnection()
+func (up UrlRepositoryPostgres) Save(s repository.ShortUrl) error {
+	db, err := openDB()
+	defer closeDB(db)
 	if err != nil {
 		fmt.Println(err)
 		return err
@@ -57,8 +68,6 @@ func (up UrlRepositoryPostgres) Save(s repository.ShortUrl) error {
 	}
 	fmt.Println("INSERT executed successfully!")
 
-	defer db.Close()
-
 	return nil
 }
 
@@ -67,7 +76,8 @@ func (up UrlRepositoryPostgres) Get(h string) (repository.ShortUrl, error) {
 		Hash: h,
 	}
 
-	db, err := getDBConnection()
+	db, err := openDB()
+	defer closeDB(db)
 	if err != nil {
 		fmt.Println(err)
 		return s, err
@@ -90,8 +100,6 @@ func (up UrlRepositoryPostgres) Get(h string) (repository.ShortUrl, error) {
 	}
 
 	fmt.Println(s)
-
-	defer db.Close()
 
 	return s, nil
 }
