@@ -32,3 +32,5 @@ func GetMachineId() (uint16, error) {
 
 	return uint16(machineId), err
 }
+
+var RepositoryType = os.Getenv("REPOSITORY")
