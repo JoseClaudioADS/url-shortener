@@ -1,0 +1,30 @@
+version: "3.8"
+services:
+  backend:
+    build:
+      context: ./
+      # Correct the path to your Dockerfile
+      dockerfile: Dockerfile.dev
+    ports:
+      - 3000:3000
+    # Important to bind/mount your codebase dir to /app dir for live reload
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      - db
+  db:
+    image: postgres:15-alpine
+    restart: always
+    ports:
+      - "5432:5432"
+    env_file:
+      - .env
+    # volumes:
+    #   - ./data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER}", "-d", "postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
