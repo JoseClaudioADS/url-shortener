@@ -6,12 +6,23 @@ import (
 
 	"github.com/joseclaudioads/url-shortener/internal/http/rest"
 	"github.com/joseclaudioads/url-shortener/internal/repositories/mongo"
+	"github.com/joseclaudioads/url-shortener/internal/repositories/postgres"
+	"github.com/joseclaudioads/url-shortener/internal/repositories/repository"
 	"github.com/joseclaudioads/url-shortener/internal/services"
+	"github.com/joseclaudioads/url-shortener/internal/utils/environments"
 )
 
 func main() {
 
-	urlService, _ := services.NewShortUrlService(mongo.NewUrlsRepositoryMongo())
+	var r repository.UrlRepository
+
+	if environments.RepositoryType == "MONGO" {
+		r = mongo.NewUrlsRepositoryMongo()
+	} else {
+		r = postgres.NewUrlRepositoryPostgres()
+	}
+
+	urlService, _ := services.NewShortUrlService(r)
 
 	s := rest.CreateServer(rest.ShortenerServer{
 		ShortUrlService: *urlService,
