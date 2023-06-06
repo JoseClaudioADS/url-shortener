@@ -14,6 +14,8 @@ services:
       - .env
     depends_on:
       - db
+      - mongo
+
   db:
     image: postgres:15-alpine
     restart: always
@@ -28,3 +30,29 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
+
+  mongo:
+    image: mongo:5.0.18
+    container_name: mongo
+    env_file:
+      - .env
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+
+  mongo-express:
+    image: mongo-express
+    container_name: mexpress
+    env_file:
+      - .env
+    links:
+      - mongo
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    depends_on:
+      - mongo
+  
+networks:
+  url-shortener-network:
+    driver: bridge

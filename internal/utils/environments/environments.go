@@ -11,6 +11,8 @@ var DbName = os.Getenv("DB_NAME")
 var DbUser = os.Getenv("DB_USER")
 var DbPassword = os.Getenv("DB_PASSWORD")
 
+var MongoUrl = os.Getenv("MONGO_URL")
+
 func GetDbMaxConnections() int {
 	maxConnections, err := strconv.Atoi(os.Getenv("DB_MAX_CONNECTIONS"))
 
