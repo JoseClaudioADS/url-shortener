@@ -4,14 +4,15 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/joseclaudioads/url-shortener/internal/repositories"
+	"github.com/joseclaudioads/url-shortener/internal/repositories/repository"
+	"github.com/joseclaudioads/url-shortener/internal/utils/idgenerator"
 )
 
 type ShortUrlService struct {
-	repositories.UrlRepository
+	repository.UrlRepository
 }
 
-func NewShortUrlService(u repositories.UrlRepository) (*ShortUrlService, error) {
+func NewShortUrlService(u repository.UrlRepository) (*ShortUrlService, error) {
 	if u == nil {
 		return nil, errors.New("url repository not provided")
 	}
@@ -24,13 +25,31 @@ func NewShortUrlService(u repositories.UrlRepository) (*ShortUrlService, error) 
 }
 
 func (s ShortUrlService) CreateShortUrl(o string) (string, error) {
-	fmt.Printf("Original Url %s", o)
+	fmt.Println("Original Url %s", o)
 
-	h := "jdj49f"
+	ig := idgenerator.IDGenerator{}
 
-	s.UrlRepository.Save(repositories.ShortUrl{
+	id, err := ig.CreateID()
+
+	if err != nil {
+		return "", errors.New("Error generating id")
+	}
+
+	s.UrlRepository.Save(repository.ShortUrl{
 		OriginalUrl: o,
-		Hash:        h,
+		Hash:        id,
 	})
-	return h, nil
+	return id, nil
+}
+
+func (s ShortUrlService) GetOriginalUrl(h string) (string, error) {
+	fmt.Println("Hash Url %s", h)
+
+	u, error := s.UrlRepository.Get(h)
+
+	if error != nil {
+		return "", error
+	}
+
+	return u.OriginalUrl, nil
 }
