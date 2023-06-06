@@ -1,7 +1,6 @@
 package environments
 
 import (
-	"fmt"
 	"os"
 	"strconv"
 )
@@ -26,7 +25,7 @@ func GetDbMaxConnections() int {
 
 func GetMachineId() (uint16, error) {
 	var machineId, err = strconv.ParseUint(os.Getenv("MACHINE_ID"), 10, 64)
-	fmt.Println(MongoUrl)
+
 	if err != nil {
 		panic(err)
 	}

@@ -2,7 +2,6 @@ package mongo
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/joseclaudioads/url-shortener/internal/infra/db"
 	"github.com/joseclaudioads/url-shortener/internal/repositories/repository"
@@ -21,13 +20,13 @@ func (um UrlsRepositoryMongo) Save(s repository.ShortUrl) error {
 
 	u := bson.D{{Key: "original_url", Value: s.OriginalUrl}, {Key: "hash", Value: s.Hash}}
 
-	result, err := uc.InsertOne(context.TODO(), u)
+	_, err := uc.InsertOne(context.TODO(), u)
 
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Println(result.InsertedID)
+	// result.InsertedID
 
 	return nil
 }
