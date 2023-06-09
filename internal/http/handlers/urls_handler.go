@@ -37,14 +37,14 @@ func (u urlsHandler) CreateShortUrlHandler(w http.ResponseWriter, r *http.Reques
 	}
 
 	u.ShortUrlService.CreateShortUrl(i.OriginalUrl)
-	w.WriteHeader(201)
+	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte("Short URL Created"))
 }
 
 func (u urlsHandler) GetOriginalUrlHandler(w http.ResponseWriter, r *http.Request) {
 	hashParam := chi.URLParam(r, "hash")
 	if strings.TrimSpace(hashParam) == "" {
-		w.WriteHeader(400)
+		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(fmt.Sprintf("you must give a valid url hash")))
 		return
 	}
@@ -52,8 +52,14 @@ func (u urlsHandler) GetOriginalUrlHandler(w http.ResponseWriter, r *http.Reques
 	o, error := u.ShortUrlService.GetOriginalUrl(hashParam)
 
 	if error != nil {
-		w.WriteHeader(400)
+		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(fmt.Sprintf("something wrong happened")))
+		return
+	}
+
+	if o == "" {
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte(fmt.Sprintf("url not found")))
 		return
 	}
 
