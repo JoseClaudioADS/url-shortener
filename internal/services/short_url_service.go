@@ -3,6 +3,7 @@ package services
 import (
 	"errors"
 
+	"github.com/joseclaudioads/url-shortener/internal/repositories/caches/cache"
 	"github.com/joseclaudioads/url-shortener/internal/repositories/repository"
 	"github.com/joseclaudioads/url-shortener/internal/utils/idgenerator"
 	"github.com/jxskiss/base62"
@@ -10,15 +11,17 @@ import (
 
 type ShortUrlService struct {
 	repository.UrlRepository
+	cache.UrlCache
 }
 
-func NewShortUrlService(u repository.UrlRepository) (*ShortUrlService, error) {
+func NewShortUrlService(u repository.UrlRepository, c cache.UrlCache) (*ShortUrlService, error) {
 	if u == nil {
 		return nil, errors.New("url repository not provided")
 	}
 
 	svc := &ShortUrlService{
 		UrlRepository: u,
+		UrlCache:      c,
 	}
 
 	return svc, nil
@@ -47,10 +50,20 @@ func (s ShortUrlService) CreateShortUrl(o string) (string, error) {
 
 func (s ShortUrlService) GetOriginalUrl(h string) (string, error) {
 
-	u, error := s.UrlRepository.Get(h)
+	u, error := s.UrlCache.Get(h)
 
-	if error != nil {
-		return "", error
+	if error != nil || u.OriginalUrl == "" {
+		ur, error := s.UrlRepository.Get(h)
+
+		if error != nil {
+			return "", error
+		}
+
+		if ur.OriginalUrl != "" {
+			go s.UrlCache.Save(ur)
+		}
+
+		return ur.OriginalUrl, nil
 	}
 
 	return u.OriginalUrl, nil

@@ -34,3 +34,7 @@ func GetMachineId() (uint16, error) {
 }
 
 var RepositoryType = os.Getenv("REPOSITORY")
+
+var RedisUrl = os.Getenv("REDIS_URL")
+
+var RedisPassword = os.Getenv("REDIS_PASSWORD")
