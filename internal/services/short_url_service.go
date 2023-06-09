@@ -36,7 +36,7 @@ func (s ShortUrlService) CreateShortUrl(o string) (string, error) {
 
 	e := base62.EncodeToString([]byte(id))
 
-	h := e[0:7]
+	h := e[0:10]
 
 	s.UrlRepository.Save(repository.ShortUrl{
 		OriginalUrl: o,
