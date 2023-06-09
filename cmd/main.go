@@ -5,6 +5,8 @@ import (
 	"net/http"
 
 	"github.com/joseclaudioads/url-shortener/internal/http/rest"
+	"github.com/joseclaudioads/url-shortener/internal/repositories/caches/cache"
+	"github.com/joseclaudioads/url-shortener/internal/repositories/caches/redis"
 	"github.com/joseclaudioads/url-shortener/internal/repositories/mongo"
 	"github.com/joseclaudioads/url-shortener/internal/repositories/postgres"
 	"github.com/joseclaudioads/url-shortener/internal/repositories/repository"
@@ -22,7 +24,11 @@ func main() {
 		r = postgres.NewUrlRepositoryPostgres()
 	}
 
-	urlService, _ := services.NewShortUrlService(r)
+	var c cache.UrlCache
+
+	c = redis.NewUrlsCacheRedis()
+
+	urlService, _ := services.NewShortUrlService(r, c)
 
 	s := rest.CreateServer(rest.ShortenerServer{
 		ShortUrlService: *urlService,

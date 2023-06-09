@@ -19,7 +19,13 @@ func getUrlConnection() string {
 	return fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
 }
 
+var sqlDB *sql.DB
+
 func OpenDB() (*sql.DB, error) {
+	if sqlDB != nil {
+		return sqlDB, nil
+	}
+
 	db, err := sql.Open("postgres", getUrlConnection())
 	if err != nil {
 		return nil, err
@@ -38,5 +44,7 @@ func OpenDB() (*sql.DB, error) {
 		return nil, err
 	}
 
-	return db, nil
+	sqlDB = db
+
+	return sqlDB, nil
 }
