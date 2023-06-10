@@ -45,7 +45,8 @@ func (s ShortUrlService) CreateShortUrl(o string) (string, error) {
 		OriginalUrl: o,
 		Hash:        h,
 	})
-	return id, nil
+
+	return h, nil
 }
 
 func (s ShortUrlService) GetOriginalUrl(h string) (string, error) {

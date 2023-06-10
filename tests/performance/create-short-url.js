@@ -1,14 +1,17 @@
 import http from 'k6/http';
-import { sleep } from 'k6';
+import { sleep, check } from 'k6';
 export const options = {
-  vus: 10,
-  duration: '30s',
+  vus: 1160,
+  duration: '1s',
 };
 export default function () {
-  http.post('http://localhost:3000', JSON.stringify({
+  const res = http.post('http://localhost:3000', JSON.stringify({
     originalUrl: "http://google.com"
   }), {
     headers: { 'Content-Type': 'application/json' },
+  });
+  check(res, {
+    'is status 201': (r) => r.status === 201,
   });
   sleep(1);
 }
