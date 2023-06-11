@@ -14,6 +14,10 @@ type createShortUrlInput struct {
 	OriginalUrl string
 }
 
+type getShortUrlInput struct {
+	ShortUrl string `json:"shortUrl"`
+}
+
 type urlsHandler struct {
 	services.ShortUrlService
 }
@@ -36,9 +40,17 @@ func (u urlsHandler) CreateShortUrlHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	u.ShortUrlService.CreateShortUrl(i.OriginalUrl)
+	h, err := u.ShortUrlService.CreateShortUrl(i.OriginalUrl)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
 	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte("Short URL Created"))
+	json.NewEncoder(w).Encode(getShortUrlInput{
+		ShortUrl: h,
+	})
 }
 
 func (u urlsHandler) GetOriginalUrlHandler(w http.ResponseWriter, r *http.Request) {

@@ -45,7 +45,7 @@ func (um UrlsRepositoryMongo) Get(h string) (repository.ShortUrl, error) {
 	err := uc.FindOne(context.TODO(), filter).Decode(&result)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
-			fmt.Println("result not found")
+			fmt.Println("result not found: " + h)
 		} else {
 			panic(err)
 		}
