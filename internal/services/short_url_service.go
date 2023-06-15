@@ -5,6 +5,7 @@ import (
 
 	"github.com/joseclaudioads/url-shortener/internal/repositories/caches/cache"
 	"github.com/joseclaudioads/url-shortener/internal/repositories/repository"
+	"github.com/joseclaudioads/url-shortener/internal/utils/environments"
 	"github.com/joseclaudioads/url-shortener/internal/utils/idgenerator"
 	"github.com/jxskiss/base62"
 )
@@ -51,20 +52,23 @@ func (s ShortUrlService) CreateShortUrl(o string) (string, error) {
 
 func (s ShortUrlService) GetOriginalUrl(h string) (string, error) {
 
-	u, error := s.UrlCache.Get(h)
+	var u repository.ShortUrl
+	var err error
 
-	if error != nil || u.OriginalUrl == "" {
-		ur, error := s.UrlRepository.Get(h)
+	if environments.IsCacheEnable() {
+		u, err = s.UrlCache.Get(h)
+	}
 
-		if error != nil {
-			return "", error
+	if !environments.IsCacheEnable() || err != nil || u.OriginalUrl == "" {
+		u, err = s.UrlRepository.Get(h)
+
+		if err != nil {
+			return "", err
 		}
 
-		if ur.OriginalUrl != "" {
-			go s.UrlCache.Save(ur)
+		if u.OriginalUrl != "" && environments.IsCacheEnable() {
+			go s.UrlCache.Save(u)
 		}
-
-		return ur.OriginalUrl, nil
 	}
 
 	return u.OriginalUrl, nil

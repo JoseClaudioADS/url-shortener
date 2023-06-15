@@ -26,7 +26,9 @@ func main() {
 
 	var c cache.UrlCache
 
-	c = redis.NewUrlsCacheRedis()
+	if environments.IsCacheEnable() {
+		c = redis.NewUrlsCacheRedis()
+	}
 
 	urlService, _ := services.NewShortUrlService(r, c)
 
