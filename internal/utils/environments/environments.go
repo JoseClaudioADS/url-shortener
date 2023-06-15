@@ -38,3 +38,13 @@ var RepositoryType = os.Getenv("REPOSITORY")
 var RedisUrl = os.Getenv("REDIS_URL")
 
 var RedisPassword = os.Getenv("REDIS_PASSWORD")
+
+func IsCacheEnable() bool {
+	isCacheEnable, err := strconv.ParseBool(os.Getenv("ENABLE_CACHE"))
+
+	if err != nil {
+		return false
+	}
+
+	return isCacheEnable
+}
